@@ -60,16 +60,21 @@ if ip link show "$INTERFACE" ; then
 fi
 
 ## Now, assign it the netvm-gateway IP address
-ip="$(qubesdb-read /qubes-netvm-gateway)"
-ip6="$(qubesdb-read /qubes-netvm-gateway6)/128" || ip6=''
+ip="$(qubesdb-read /qubes-netvm-gateway 2>/dev/null || true)"
+ip6="$(qubesdb-read /qubes-netvm-gateway6 2>/dev/null || true)"
+if [ -n "$ip6" ]; then
+   ip6="$ip6/128"
+fi
 
-if [ ! "$ip" = "" ]; then
+if [ -n "$ip" ] || [ -n "$ip6" ]; then
    ## Create a dummy eth1 interface so Tor can bind to it if there
    ## are no DOMU virtual machines connected at the moment
    ip link add "$INTERFACE" type dummy || true
 
-   netmask="$(qubesdb-read /qubes-netvm-netmask)"
-   /sbin/ifconfig "$INTERFACE" "$ip" netmask "$netmask"
+   if [ -n "$ip" ]; then
+     netmask="$(qubesdb-read /qubes-netvm-netmask)"
+     /sbin/ifconfig "$INTERFACE" "$ip" netmask "$netmask"
+   fi
    if [ -n "$ip6" ]; then
      /sbin/ifconfig "$INTERFACE" inet6 add "$ip6"
    fi

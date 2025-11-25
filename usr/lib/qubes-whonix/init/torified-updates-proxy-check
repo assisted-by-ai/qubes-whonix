@@ -36,6 +36,8 @@ Instead this script is running under user '$who_ami'." >&2
    exit 1
 fi
 
+mkdir -p -- /run/updatesproxycheck
+
 signal_sigterm() {
    exit 143
 }
