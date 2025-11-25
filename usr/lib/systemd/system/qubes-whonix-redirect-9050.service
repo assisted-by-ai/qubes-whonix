@@ -7,6 +7,9 @@ Documentation=https://github.com/Whonix/qubes-whonix
 ConditionPathExists=/run/qubes/this-is-templatevm
 After=qubes-sysinit.service
 After=qubes-whonix-redirect-9050.socket
+## Stop the proxy automatically when the listening socket is stopped so it
+## doesn't keep running after a socket-level disable/stop request.
+BindsTo=qubes-whonix-redirect-9050.socket
 Requires=qubes-whonix-redirect-9050.socket
 
 [Service]

@@ -4,7 +4,12 @@
 [Unit]
 Description=Qubes-Whonix Remote Support
 Documentation=https://github.com/Whonix/qubes-whonix
-After=qubes-sysinit.service
+After=qubes-sysinit.service qubes-qrexec-agent.service network-online.target
+Wants=network-online.target qubes-qrexec-agent.service
+## Remote support cannot function without qrexec; fail the unit if the agent
+## is missing and stop the tunnel whenever qrexec goes down.
+Requires=qubes-qrexec-agent.service
+PartOf=qubes-qrexec-agent.service
 
 ## Not inside TemplateVM.
 ConditionPathExists=!/run/qubes/this-is-templatevm
@@ -15,7 +20,10 @@ ConditionPathExists=|/run/qubes/this-is-netvm
 ConditionPathExists=|/run/qubes/this-is-proxyvm
 
 [Service]
-Type=forking
+## qvm-connect-tcp runs in the foreground and should be tracked directly by
+## systemd. Using Type=simple avoids misclassifying the service as failed due
+## to the absence of a background daemon process.
+Type=simple
 ExecStart=/usr/bin/qvm-connect-tcp 22:dom0:22
 SuccessExitStatus=143
 

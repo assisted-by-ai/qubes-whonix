@@ -9,6 +9,11 @@
 Description=Qubes Whonix Torified Updates Proxy Check
 Documentation=https://github.com/Whonix/qubes-whonix
 
+## Only relevant inside TemplateVMs where the proxy configuration is
+## assembled. Skip everywhere else to avoid running the helper as the
+## dedicated updatesproxycheck user on VMs where it may not exist.
+ConditionPathExists=/run/qubes/this-is-templatevm
+
 Before=qubes-updates-proxy.service
 Before=qubes-updates-cache.service
 
